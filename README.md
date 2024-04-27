@@ -12,3 +12,6 @@ Test task solution. 4lapy mobile app parser
 + The function was found in q.class file
 + It's simply "ABCDEF00G" + sorted hashed parameters
 + Hash function is MD5
+## Endpoints used
++ https://4lapy.ru/api/v2/catalog/product/list/
++ https://4lapy.ru/api/v2/catalog/product/info-list/
