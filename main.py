@@ -1,6 +1,7 @@
 import json
 import hashlib
 import math
+import threading
 import time
 import urllib.parse
 from threading import Thread
@@ -90,6 +91,8 @@ class Parser:
         for d in extra:
             variants[d['active_offer_id']] = d['variants'][0]
         for d in data['goods']:
+            if not d.get('isAvailable'):
+                continue
             result = {
                 i: d[i] for i in ['id', 'title', 'webpage', 'brand_name']
             }
@@ -97,6 +100,7 @@ class Parser:
                 result['price'] = variants[d['id']]['price']
             items.append(result)
         logger.info(f"Page {page} parsed")
+        WorkCollector.count()
         return items
 
     def get_total_pages(self):
@@ -110,15 +114,23 @@ class Parser:
 
 class WorkCollector:
     result = []
+    counter = 0
+    lock = threading.Lock()
 
     def __init__(self, size):
         self.result = [None for i in range(size)]
+
+    @classmethod
+    def count(cls):
+        with cls.lock:
+            cls.counter += 1
+            logger.warning(f"Done {cls.counter} tasks")
 
 
 class WorkerManager:
     workers = []
 
-    def __init__(self, func, tasks, processes=4):
+    def __init__(self, func, tasks, processes=8):
         self.tasks = tasks
         self.func = func
         self.processes = processes
@@ -132,7 +144,9 @@ class WorkerManager:
             work_end = (i + 1) * self.work_amount
             if i == self.processes - 1:
                 work_end = len(self.tasks)
-            t = Thread(target=self.func, args=(i, self.tasks[i * self.work_amount: min(work_end, len(self.tasks))],))
+            tasks = self.tasks[i * self.work_amount: min(work_end, len(self.tasks))]
+            t = Thread(target=self.func, args=(i, tasks,))
+            logger.info(f"Starting thread {i} with {len(tasks)} tasks")
             t.start()
             w.append(t)
             if work_end >= len(self.tasks):
@@ -144,7 +158,7 @@ class WorkerManager:
 
 
 if __name__ == '__main__':
-    config = Config('Москва', 165, 100)
+    config = Config(city='Санкт-Петербург', category=1, page_size=100)
     parser = Parser(config)
     total_pages = parser.get_total_pages()
     collector = WorkCollector(total_pages)
