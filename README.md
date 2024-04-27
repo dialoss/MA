@@ -9,6 +9,6 @@ Test task solution. 4lapy mobile app parser
 + Install custom network certificate
 + Run frida on desktop for ssl decryption of requests
 ## Reverse-engineering sign function of the request:
-The function was found in q.class file
-It's simply "ABCDEF00G" + sorted hashed parameters
-Hash function is MD5
++ The function was found in q.class file
++ It's simply "ABCDEF00G" + sorted hashed parameters
++ Hash function is MD5
