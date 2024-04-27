@@ -8,6 +8,7 @@ Test task solution. 4lapy mobile app parser
 + Install apk
 + Install custom network certificate
 + Run frida on desktop for ssl decryption of requests
++ Analyze requests in Charles
 ## Reverse-engineering sign function of the request:
 + The function was found in q.class file
 + It's simply "ABCDEF00G" + sorted hashed parameters
